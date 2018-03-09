@@ -1,0 +1,11 @@
+function n_netw = build_nn(node, bias, weights)
+    
+    n_netw(sum(node)) = nn_unit;
+    
+    i = 1;
+    for level = 1:length(node)
+        for j = 1:node(level)
+            n_netw(j) = level;
+        end
+    end
+end

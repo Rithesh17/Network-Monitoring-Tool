@@ -1,7 +1,21 @@
 classdef nn_unit
+    %A node of the Neural Network.
+    %
+    %
+    %Properties: bias: The bias value of the node.
+    %            
+    %            weights: An array of weights between the current node and 
+    %                     the nodes of previous level.
+    %                     
+    %            level: The layer value to which the node belongs. By
+    %                   convention the inputs are labelled as level 1, and
+    %                   the output layer has the highest value.
+    %
+    %
+    %Methods: 
+    
     properties (Access = private)
         bias = 0;
-        inputs;
         weights;
         level = 1;
     end
@@ -19,8 +33,11 @@ classdef nn_unit
         end
 
         function [obj, hypo] = getHypothesis(obj, input_val)
-            obj.inputs = input_val;
-            hypo = 1/(1+exp(-(sum(obj.inputs.*obj.weights) - obj.bias)));
+            hypo = 1/(1+exp(-(sum(input_val.*obj.weights) - obj.bias)));
+        end
+        
+        function level_out = getLevel(obj)
+            level_out = obj.level;
         end
     end
 end

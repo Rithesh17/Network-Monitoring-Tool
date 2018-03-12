@@ -1,4 +1,4 @@
-#packcap - A Packet Capture tool.
+# packcap - A Packet Capture tool.
 
-###This uses the libpcap library as it's base.
+### This uses the libpcap library as it's base.
 

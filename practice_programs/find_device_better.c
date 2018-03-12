@@ -1,3 +1,9 @@
+/*
+ * Second program. 
+ * Routines pcap_lookupdev() , pcap_open_live() , pcap_datalink() from 
+ * pcap.h are used.
+ */
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<pcap.h>

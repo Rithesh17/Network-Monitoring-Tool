@@ -1,5 +1,6 @@
 
 #include"pkp/packcap.h"
+#include"pkp/ether_handle.h"
 /*
  * TODO: If possible , put implementations of all the functions in another directory , create a dynamic shared object , and put only their declarations into a header files(Standard method).
  *
@@ -35,5 +36,6 @@ void pkp_print_packet_len(const unsigned char *packet , struct pcap_pkthdr *pack
 
 void pkp_packet_handler_1(unsigned char *arg , struct pcap_pkthdr *packet_header , const unsigned char *packet) {
 	pkp_print_packet_len(packet , packet_header);
+	pkp_read_eth_header(packet);
 }
 

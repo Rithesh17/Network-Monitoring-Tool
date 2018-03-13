@@ -12,6 +12,7 @@
  */
 
 #include"pkp/packcap.h"
+#include"pkp/ether_handle.h"
 
 
 int main(int argc , char **argv) {

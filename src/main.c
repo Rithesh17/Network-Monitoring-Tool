@@ -11,11 +11,10 @@
  *
  */
 
-#include"packcap.h"
+#include"pkp/packcap.h"
 
 
 int main(int argc , char **argv) {
-
 
 	char 			*pkp_dev_name;				/*The device name. eg: eno0 , eth0 , wlp3s0 , etc., */
 	char     		pkp_error_buffer[PCAP_ERRBUF_SIZE];	/*Standard error buffer */
@@ -37,7 +36,7 @@ int main(int argc , char **argv) {
  */
 	pkp_dev_name = pcap_lookupdev(pkp_error_buffer);
 	if(pkp_dev_name == NULL)	
-		err_exit("Error in finding default device. \nRoutine: pcap_loopupdev()" , pkp_error_buffer);
+		pkp_err_exit("Error in finding default device. \nRoutine: pcap_loopupdev()" , pkp_error_buffer);
 
 
 /*
@@ -47,7 +46,7 @@ int main(int argc , char **argv) {
 
 
 	if(pcap_lookupnet(pkp_dev_name , &pkp_raw_ip_addr , &pkp_raw_subnet_mask , pkp_error_buffer) == -1)
-		err_exit("Error in finding details about the device. \nRoutine: pcap_lookupnet()" , pkp_error_buffer);
+		pkp_err_exit("Error in finding details about the device. \nRoutine: pcap_lookupnet()" , pkp_error_buffer);
 		
 /*
  * Converting Network forms of IP Address and Subnet Mask into human-readable strings. 
@@ -57,13 +56,13 @@ int main(int argc , char **argv) {
 	pkp_ip_address.s_addr = pkp_raw_ip_addr;
 	strcpy(pkp_str_ip_addr , inet_ntoa(pkp_ip_address));
 	if(pkp_str_ip_addr == NULL) 
-		err_exit("Error: Unable to convert raw IP address into human readable form. Routine: inet_ntoa()" , pkp_error_buffer);
+		pkp_err_exit("Error: Unable to convert raw IP address into human readable form. Routine: inet_ntoa()" , pkp_error_buffer);
 
 
 	pkp_ip_address.s_addr = pkp_raw_subnet_mask;
 	strcpy(pkp_str_subnet_mask , inet_ntoa(pkp_ip_address));
 	if(pkp_str_subnet_mask == NULL) 
-		err_exit("Error: Unable to covert raw Subnet mask into human readable form. Routine: inet_ntoa()" , pkp_error_buffer);
+		pkp_err_exit("Error: Unable to covert raw Subnet mask into human readable form. Routine: inet_ntoa()" , pkp_error_buffer);
 
 	printf("Device = %s\n" 	     , 	pkp_dev_name);
 	printf("Ip Address = %s\n"   , 	pkp_str_ip_addr);
@@ -77,7 +76,7 @@ int main(int argc , char **argv) {
 	
 	pkp_sniff_handle = pcap_open_live(pkp_dev_name , BUFSIZ , pkp_packet_count_limit , pkp_timeout_limit , pkp_error_buffer);		
 	if(pkp_sniff_handle == NULL) 
-		err_exit("Error:  Unable to open a live sniffing session in the device specified. Routine: pcap_open_live()" , pkp_error_buffer);
+		pkp_err_exit("Error:  Unable to open a live sniffing session in the device specified. Routine: pcap_open_live()" , pkp_error_buffer);
 
 /*
  * Checking if the default device uses/supports Ethernet headers. Or Checking if the Data-Link Protocol is the Ethernet Protocol.
@@ -85,21 +84,23 @@ int main(int argc , char **argv) {
  */
 
 	if(pcap_datalink(pkp_sniff_handle) != DLT_EN10MB) 
-		err_exit("Error: Device does not support Ethernet Headers." , pkp_error_buffer);	
+		pkp_err_exit("Error: Device does not support Ethernet Headers." , pkp_error_buffer);	
 
 /*
  * XXX: Checking if sniffing happens properly. This will be commented.
  * Sniffed 1 packet .
  * Routine: pcap_next()
  *
-	
+ *	
 	pkp_packet = pcap_next(pkp_sniff_handle , &pkp_packet_header);
 	if(pkp_packet == NULL) 
 		err_exit("Error: A single packet did not get sniffed." , pkp_error_buffer);
 
 	print_packet_len(pkp_packet , pkp_packet_header);
-*/	
+	
+ */
 
+	pcap_loop(pkp_sniff_handle , DEFAULT_PACKET_COUNT_LIMIT , pkp_packet_handler_1 , NULL);
 
 	return 0;
 	

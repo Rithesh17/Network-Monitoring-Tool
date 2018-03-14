@@ -6,8 +6,6 @@
 #include<netinet/ether.h>
 
 
-#define PCAP_PKTHDR_SIZE sizeof(struct pcap_pkthdr)
-
 void pkp_read_eth_header(const unsigned char *packet);
 
 #endif

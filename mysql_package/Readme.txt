@@ -34,4 +34,4 @@ b. Read the comments in each of the file to get the functioning, the
 
 c. For accessing the MySQL database, root permissions are required. Also,
    the username and the password of the authorised user is needed to login
-   into the database.
+   to the database.

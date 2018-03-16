@@ -1,7 +1,0 @@
-function [n_netw, hypo] = getHypothesis(n_netw, input_data)
-    data = input_data;
-    
-    for level = 1:
-        
-    end
-end

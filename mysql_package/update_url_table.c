@@ -7,7 +7,7 @@
 //Function to update the ip_ether table of
 //packet_analyser database
 //
-//Parameters: newConn: The connection handler of MYSQL
+//Parameters: dbConn: The connection handler of MYSQL
 //            ip: The ip address to be added to the table
 //           url: The URL address to be added to the table
 //         tup_no: The tuple number of the last added tuple
@@ -16,13 +16,13 @@
 //              the last added tuple. Else, returns 0
 //
 
-int update_url_table(MYSQL* newConn, char* ip, char* url, int tup_no)
+int update_url_table(MYSQL* dbConn, char* ip, char* url, int tup_no)
 {
   //Using the database 'packet_analyser'
-  if(mysql_query(newConn, "USE packet_analyser")!=0)
+  if(mysql_query(dbConn, "USE packet_analyser")!=0)
   {
-    printf("Error: %s\n", mysql_error(newConn));
-    mysql_close(newConn);
+    printf("Error: %s\n", mysql_error(dbConn));
+    mysql_close(dbConn);
     return 0;
   }
 
@@ -37,20 +37,20 @@ int update_url_table(MYSQL* newConn, char* ip, char* url, int tup_no)
   int len = strlen(query);
 
   //The query is called here
-  if(mysql_real_query(newConn, query, len)!=0)
+  if(mysql_real_query(dbConn, query, len)!=0)
   {
-    printf("Error: %s\n", mysql_error(newConn));
-    mysql_close(newConn);
+    printf("Error: %s\n", mysql_error(dbConn));
+    mysql_close(dbConn);
     return 0;
   }
 
   //The result of the query is captured
-  MYSQL_RES* result = mysql_store_result(newConn);
+  MYSQL_RES* result = mysql_store_result(dbConn);
 
   if(result==NULL)
   {
-    printf("Error: %s\n", mysql_error(newConn));
-    mysql_close(newConn);
+    printf("Error: %s\n", mysql_error(dbConn));
+    mysql_close(dbConn);
     return 0;
   }
 
@@ -59,9 +59,7 @@ int update_url_table(MYSQL* newConn, char* ip, char* url, int tup_no)
   //We are finding the number of rows in the 'result'
   //table.
   while(mysql_fetch_row(result))
-  {
-    num_rows++;// break;
-  }
+    num_rows++;
 
   //Only if the nuber of rows are 0 (that is, there is
   //no tuple) we need to add the tuple into the table
@@ -72,37 +70,39 @@ int update_url_table(MYSQL* newConn, char* ip, char* url, int tup_no)
 
     int len = strlen(query);
 
-    if(mysql_real_query(newConn, query, len)!=0)
+    if(mysql_real_query(dbConn, query, len)!=0)
     {
-      printf("Error: %s\n", mysql_error(newConn));
-      mysql_close(newConn);
+      printf("Error: %s\n", mysql_error(dbConn));
+      mysql_close(dbConn);
       return 0;
     }
   }
   return tup_no;
 }
 
+//The main file is only for unit test. While integrating, this
+//part will be commented.
 int main()
 {
-  MYSQL newConn;
+  MYSQL dbConn;
 
   //Initialising the handler
-  if(mysql_init(&newConn) == NULL)
+  if(mysql_init(&dbConn) == NULL)
   {
-    printf("Error: %s\n", mysql_error(&newConn));
+    printf("Error: %s\n", mysql_error(&dbConn));
     return 0;
   }
 
   //Connecting to MySQL through the handler.
-  if(mysql_real_connect(&newConn, "localhost", "root", "nirmala17", NULL, 3306, NULL, 0)==NULL)
+  if(mysql_real_connect(&dbConn, "localhost", "root", "nirmala17", NULL, 3306, NULL, 0)==NULL)
   {
-    printf("Error: %s\n", mysql_error(&newConn));
+    printf("Error: %s\n", mysql_error(&dbConn));
     return 0;
   }
 
   int tup_no = 1;
-  tup_no = update_url_table(&newConn, "172.16.230.254", "https://www.google.com", tup_no);
+  tup_no = update_url_table(&dbConn, "172.16.230.254", "https://www.google.com", tup_no);
 
-  mysql_close(&newConn);
+  mysql_close(&dbConn);
   return 1;
 }

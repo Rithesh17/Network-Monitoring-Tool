@@ -10,12 +10,12 @@
 //
 //Parameters: filename: The file name of .pcap file
 //            conn: The connection handler of MYSQL
-//           col_no: The value of the last tuple
+//           tup_no: The value of the last tuple
 //
 //Returm value: If successful, returns the row value of
 //              the last added tuple. Else, returns 0
 //
-int update_pcap_table(const char* filename, MYSQL* newConn, int col_no)
+int update_pcap_table(const char* filename, MYSQL* dbConn, int tup_no)
 {
   //Using stat to get the timestamp and the inode value
   //of the file
@@ -28,44 +28,47 @@ int update_pcap_table(const char* filename, MYSQL* newConn, int col_no)
   }
 
   //Using the contents of the database packet_analyser
-  mysql_query(newConn, "USE packet_analyser;");
+  mysql_query(dbConn, "USE packet_analyser;");
 
   char query[1000];
 
-  int s = sprintf(query, "INSERT INTO p_cap(SerNo, timestamp, file_path, i_node)\
-                            VALUES (%d, %d, \"%s\", %d);", col_no,\
-                            fileStat.st_mtim.tv_sec, filename, (int)fileStat.st_ino);
+  int s = sprintf(query, "INSERT INTO p_cap(SerNo, timestamp, file_path,\
+                          i_node) VALUES (%d, %d, \"%s\", %d);", tup_no,\
+                          fileStat.st_mtim.tv_sec, filename, \
+                          (int)fileStat.st_ino);
 
   int len = strlen(query);
 
-  if(mysql_real_query(newConn, query, len)!=0)
+  if(mysql_real_query(dbConn, query, len)!=0)
   {
-    printf("Error: %s\n", mysql_error(newConn));
-    mysql_close(newConn);
+    printf("Error: %s\n", mysql_error(dbConn));
+    mysql_close(dbConn);
     return 0;
   }
 
-  col_no++;
-  return col_no;
+  tup_no++;
+  return tup_no;
 }
 
+//The main file is only for unit test. While integrating, this
+//part will be commented.
 int main()
 {
-  MYSQL newConn;
+  MYSQL dbConn;
 
   //Initialising the handler
-  if(mysql_init(&newConn) == NULL)
+  if(mysql_init(&dbConn) == NULL)
   {
-    printf("Error: %s\n", mysql_error(&newConn));
+    printf("Error: %s\n", mysql_error(&dbConn));
     return 0;
   }
 
   //Connecting to MySQL through the handler.
-  if(mysql_real_connect(&newConn, "localhost", "root", "nirmala17", NULL, 3306, NULL, 0)==NULL)
+  if(mysql_real_connect(&dbConn, "localhost", "root", "nirmala17", NULL, 3306, NULL, 0)==NULL)
   {
-    printf("Error: %s\n", mysql_error(&newConn));
+    printf("Error: %s\n", mysql_error(&dbConn));
     return 0;
   }
 
-  update_pcap_table("/home/ritesh/Desktop/prio_with_aging.c", &newConn, 1);
+  update_pcap_table("/home/ritesh/Desktop/prio_with_aging.c", &dbConn, 1);
 }

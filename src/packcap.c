@@ -48,7 +48,7 @@ void pkp_print_packet_details(const unsigned char *packet , struct pcap_pkthdr *
 	 printf("CSV file name: file1.csv\n\n");
 */
 	 fprintf(fs_csv , "%d , %s , %s , %s , %s , %s , %s , %u , %u \n" , pkp_frame.length , pkp_frame.src_eth_addr , pkp_frame.dest_eth_addr , pkp_frame.l3_protocol , pkp_ipv4_packet.src_ipv4_addr , pkp_ipv4_packet.dest_ipv4_addr , pkp_ipv4_packet.l4_protocol , pkp_tcp_segment.src_port , pkp_tcp_segment.dest_port);
-	 
+	 fclose(fs_csv);
 }
 
 

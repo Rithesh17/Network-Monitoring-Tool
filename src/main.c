@@ -1,15 +1,11 @@
 /*
- * Program No.3 .
- * These are the things implemented in this program:
- * 1. Find the Default device using pcap_lookupdev().
- * 2. Find the Details(Ip Address , Subnet Mask in raw form) using pcap_lookupnet().
- * 3. Convert Raw information into human readable information.Using simple inet routines.
- * 4. Open the "device" for sniffing using pcap_open_live() routine.(Requires root permission.
- * 5. Checked whether the "device" chosen supports Ethernet header or not using pcap_datalink() routine.
+ * File: main.c
  *
- * 6. Finally , Captured 1 packet using pcap_next() routine and printed it's length.
- *
+ * Contents:
+ * 	1. This is the main sourcefile around which everything is built.
+ * 	2. Basic device detection , opening a sniffing session and calling the sniff handler happens in this Sourcefile.
  */
+
 
 #include"pkp/packcap.h"
 #include"pkp/ether_handle.h"
@@ -54,7 +50,7 @@ int main(int argc , char **argv) {
 
 	printf("Device = %s\n" 	     , 	pkp_device.name);
 	printf("Ip Address = %s\n"   , 	pkp_device.str_ip_addr);
-	printf("Subnet mask = %s\n"  , 	pkp_device.str_subnet_mask);
+	printf("Subnet mask = %s\n\n"  , 	pkp_device.str_subnet_mask);
 
 
 /*
@@ -86,6 +82,12 @@ int main(int argc , char **argv) {
 
 	print_packet_len(pkp_packet , pkp_packet_header);
 
+ */
+
+
+/*
+ * Call the sniff handler . DEFAULT_PACKET_COUNT_LIMIT = 1. So , the sniffing happens till an error occurs.
+ * Routine: pcap_loop()
  */
 
 	pcap_loop(pkp_sniff.handle , DEFAULT_PACKET_COUNT_LIMIT , pkp_packet_handler , NULL);

@@ -23,28 +23,47 @@ void pkp_err_exit(char *errmsg , char *error_buffer) {
  * This is used to print the timestamp and packet length in actual capture.
  */
 
-void pkp_print_packet_len(const unsigned char *packet , struct pcap_pkthdr *packet_header) {
+void pkp_print_packet_details(const unsigned char *packet , struct pcap_pkthdr *packet_header) {
 
 	static int count = 0;
 
-	pkp_packet.raw_timestamp = packet_header->ts.tv_sec;
-	struct tm *current_time = localtime(&pkp_packet.raw_timestamp);
+	pkp_frame.raw_timestamp = packet_header->ts.tv_sec;
+	struct tm *current_time = localtime(&pkp_frame.raw_timestamp);
 	char tm_buffer[64];
 	strftime(tm_buffer , sizeof(tm_buffer) , "%Y-%m-%d %H:%M:%S" , current_time);
-	snprintf(pkp_packet.current_time, sizeof(pkp_packet.current_time) , "%s.%ld" , tm_buffer , pkp_packet.raw_timestamp);
 
-	pkp_packet.length = packet_header->len;
-	printf("%d. LEN: %d\t" , ++count , pkp_packet.length);
-	pkp_packet.length = packet_header->len;
 
+	snprintf(pkp_frame.current_time, sizeof(pkp_frame.current_time) , "%s.%ld" , tm_buffer , pkp_frame.raw_timestamp);
+	pkp_frame.length = packet_header->len;
 
 	/*
 	 * packet_header->len = packet_header->caplen in our tool.
 	 * Reason: The capture buffer size = 65535. The theoritically largest size of a frame.
 	 */
+
+	// printf("%d. len: %d , \"%s:%u\"	>	\"%s:%u\" \n" , ++count , pkp_frame.length ,pkp_ipv4_packet.src_ipv4_addr ,pkp_tcp_segment.src_port, pkp_ipv4_packet.dest_ipv4_addr , pkp_tcp_segment.dest_port);
+
+	/* FILE *fs;
+	 fs = fopen("file1.csv" , "a+");
+	 printf("CSV file name: file1.csv\n\n");
+*/
+	 fprintf(fs_csv , "%d , %s , %s , %s , %s , %s , %s , %u , %u \n" , pkp_frame.length , pkp_frame.src_eth_addr , pkp_frame.dest_eth_addr , pkp_frame.l3_protocol , pkp_ipv4_packet.src_ipv4_addr , pkp_ipv4_packet.dest_ipv4_addr , pkp_ipv4_packet.l4_protocol , pkp_tcp_segment.src_port , pkp_tcp_segment.dest_port);
+	 
 }
 
+
+
+
+
 void pkp_packet_handler(unsigned char *arg , struct pcap_pkthdr *packet_header , const unsigned char *packet) {
-	pkp_print_packet_len(packet , packet_header);
 	pkp_read_eth_header(packet);
+	pkp_read_ipv4_header(packet);
+	pkp_read_tcp_header(packet);
+
+
+	fs_csv = fopen("file1.csv" , "a+");
+	pkp_print_packet_details(packet , packet_header);
+
+
+
 }

@@ -37,6 +37,10 @@
  * pkp_device_details: This structure contains all the details of the default device .
  */
 
+ char *pkp_csv_file;
+ char *pkp_dump_file;
+
+
 struct pkp_device_details {
 	char 		*name;
 	char 		error_buffer[PCAP_ERRBUF_SIZE];
@@ -45,6 +49,7 @@ struct pkp_device_details {
 	struct in_addr 	ip_address;
 	bpf_u_int32 	raw_ip_addr;
 	bpf_u_int32 	raw_subnet_mask;
+	pcap_dumper_t *dumpfile;
 
 } pkp_device;
 
@@ -94,6 +99,19 @@ struct ipv4_packet {
 } pkp_ipv4_packet;
 
 
+/*
+ * arp_packet: If the frame's layer 3 protocol is ARP , thne this structure will contain/lead to all the details regarding the ARP header.
+ */
+
+
+ struct arp_packet {
+
+	 struct arphdr *header;
+
+
+ } pkp_arp_packet;
+
+
 
 
 struct tcp_segment {
@@ -107,20 +125,27 @@ struct tcp_segment {
 } pkp_tcp_segment;
 
 
+struct udp_datagram {
+	struct udphdr *header;
+	unsigned short int src_port ;
+	unsigned short int dest_port;
+	unsigned short int length;
+};
+
+struct udp_datagram pkp_udp_dgram;
+
+struct icmp4_packet {
+		 struct icmphdr *header;
+		 char type;
+		 char code;
+		 unsigned short int id;
+		 unsigned short int seq;
+		 struct in_addr gw_raw_ipv4_addr;
+		 char gw_ipv4_addr[20];
+	 };
+	 struct icmp4_packet pkp_icmp4_packet;
 
 
-
-	/*
-	 * arp_packet: If the frame's layer 3 protocol is ARP , thne this structure will contain/lead to all the details regarding the ARP header.
-	 */
-
-
-	 struct arp_packet {
-
-		 struct arphdr *header;
-
-
-	 } pkp_arp_packet;
 
 
 	 FILE *fs_csv;
@@ -147,5 +172,9 @@ void pkp_print_packet_len(const unsigned char *packet , struct pcap_pkthdr *pack
  */
 
 void pkp_packet_handler(unsigned char *arg , struct pcap_pkthdr *packet_header , const unsigned char *packet) ;
+
+
+//void pkp_pcap_dump_handler(unsigned char *dumpfile , const struct pcap_pkthdr *header , const unsigned char *pkt_data);
+
 
 #endif

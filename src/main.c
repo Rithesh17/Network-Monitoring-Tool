@@ -13,6 +13,12 @@
 
 int main(int argc , char **argv) {
 
+	if(argc != 3) {
+		fprintf(stderr , "Usage: $%s <pcapdumpfile.pcap> <name_of_csvfile.csv> \n" , argv[0]);
+		exit(1);
+	}
+	pkp_csv_file = argv[2];
+	pkp_dump_file = argv[1];
 
 /*
  * Finding default device .
@@ -85,11 +91,19 @@ int main(int argc , char **argv) {
  */
 
 
+	//if((pkp_device.dumpfile = pcap_dump_open(pkp_sniff.handle , pkp_dump_file)) == NULL)
+	//	pkp_err_exit("Error in dumping the packets into a dump(pcap) file" , pkp_device.error_buffer);
+
+
+//	if(pcap_dump_fopen(pkp_sniff.handle , "pcapfile.pcap") == NULL)
+	//	pkp_err_exit("Error dumping into pcap file" , pkp_device.error_buffer);
+
+
 /*
  * Call the sniff handler . DEFAULT_PACKET_COUNT_LIMIT = 1. So , the sniffing happens till an error occurs.
  * Routine: pcap_loop()
  */
-
+	//pcap_loop(pkp_sniff.handle , DEFAULT_PACKET_COUNT_LIMIT , pkp_pcap_dump_handler , (unsigned char *)(pkp_device.dumpfile));
 	pcap_loop(pkp_sniff.handle , DEFAULT_PACKET_COUNT_LIMIT , pkp_packet_handler , NULL);
 
 	return 0;

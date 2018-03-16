@@ -47,11 +47,15 @@ void pkp_print_packet_details(const unsigned char *packet , struct pcap_pkthdr *
 	 fs = fopen("file1.csv" , "a+");
 	 printf("CSV file name: file1.csv\n\n");
 */
-	 fprintf(fs_csv , "%d , %s , %s , %s , %s , %s , %s , %u , %u \n" , pkp_frame.length , pkp_frame.src_eth_addr , pkp_frame.dest_eth_addr , pkp_frame.l3_protocol , pkp_ipv4_packet.src_ipv4_addr , pkp_ipv4_packet.dest_ipv4_addr , pkp_ipv4_packet.l4_protocol , pkp_tcp_segment.src_port , pkp_tcp_segment.dest_port);
-	 fclose(fs_csv);
+	printf("%d.		%s:%d		>		%s:%d		, l4_p: %s\n" , ++count , pkp_ipv4_packet.src_ipv4_addr , pkp_tcp_segment.src_port , pkp_ipv4_packet.dest_ipv4_addr , pkp_tcp_segment.dest_port , pkp_ipv4_packet.l4_protocol);
+	if(!strcmp(pkp_ipv4_packet.l4_protocol , "TCP") || !(strcmp(pkp_ipv4_packet.l4_protocol , "UDP"))) {
+	 	fprintf(fs_csv , "%s , %d , %s , %s , %s , %s , %s , %s , %u , %u \n" , pkp_frame.current_time , pkp_frame.length , pkp_frame.src_eth_addr , pkp_frame.dest_eth_addr , pkp_frame.l3_protocol , pkp_ipv4_packet.src_ipv4_addr , pkp_ipv4_packet.dest_ipv4_addr , pkp_ipv4_packet.l4_protocol , pkp_tcp_segment.src_port , pkp_tcp_segment.dest_port);
+	}
+	else if(!strcmp(pkp_ipv4_packet.l4_protocol , "ICMP")) {
+		printf("ICMP packets detected!\n");
+	}
+
 }
-
-
 
 
 
@@ -61,8 +65,9 @@ void pkp_packet_handler(unsigned char *arg , struct pcap_pkthdr *packet_header ,
 	pkp_read_tcp_header(packet);
 
 
-	fs_csv = fopen("file1.csv" , "a+");
+	fs_csv = fopen(pkp_csv_file , "a+");
 	pkp_print_packet_details(packet , packet_header);
+	fclose(fs_csv);
 
 
 

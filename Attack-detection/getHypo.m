@@ -1,4 +1,4 @@
-function [n_netw, hypo] = getHypo(n_netw, input_data, node)
+function hypo = getHypo(n_netw, input_data, node)
     data = input_data;
     
     temp = [];

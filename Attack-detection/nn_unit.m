@@ -12,7 +12,9 @@ classdef nn_unit
     %                   the output layer has the highest value.
     %
     %
-    %Methods: 
+    %Methods: setLevel: Sets the layer number of the node. The value of
+    %                   the layer is to be passed as the parameter.
+    %          
     
     properties (Access = private)
         bias = 0;

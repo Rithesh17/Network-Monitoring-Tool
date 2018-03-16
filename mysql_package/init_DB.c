@@ -1,10 +1,14 @@
 //Tis is the initialisation of the connection with
 //the MySQL database, and initialisation of the
 //database and the tables required for our project
-
-//Tables required: .pcap table(file_path, inode, timestamp)
 //
-
+//Tables added to the database:
+//      p_cap(file_path, inode, timestamp)
+//      service_port(port_number, service, protocol)
+//      ip_url(ip_address, url_address)
+//      ip_ether(ip_address, ether_address)
+//      pkt_info(sourceIP, destIP, protocol, length, timestamp)
+//
 //When an error is found, it is displayed on a window and
 //NULL is returned, instead of exiting at that point. This
 //is done so as not to disturb other functions of the
@@ -30,10 +34,10 @@ void mysqlError(MYSQL* conn)
 //This is the actual function involved in establishing
 //a connection with MySQL and creating the database with
 //required tables
-
+//
 //Parameters: user: The username of the user accessing the database
 //          passwd: The password of the user accessing the database
-
+//
 //Return value: On success, the function returns the handler of the
 //              connection. If error found, it is displayed on a
 //              window and NULL is returned
@@ -103,9 +107,21 @@ MYSQL* initDB(char* user, char* passwd)
     return NULL;
   }
 
+  //Creating the pkt_info table if it does not exist
+  if(mysql_query(&newConn, "CREATE TABLE IF NOT EXISTS pkt_info\
+                            (SerNo INT PRIMARY KEY, ip_src TEXT,\
+                            ip_dst TEXT, protocol TEXT, length INT\
+                            timestamp TEXT);")!=0)
+  {
+    mysqlError(&newConn);
+    return NULL;
+  }
+
   return &newConn;
 }
 
+//The main file is only for unit test. While integrating, this
+//part will be commented.
 int main()
 {
   //Please enter the username and password in initDB

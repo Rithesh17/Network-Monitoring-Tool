@@ -21,5 +21,17 @@ Files contained in this zip folder (in the order to be executed):
                      but the table is occasionally updated (only when
                      a new ip address arrives).
 
-Please note that each file has its own 'main' file. It was intended for unit
-tests, and must be removed while integrating with other modules.
+6. update_pkt_info: This function is to be executed in frequent periodic
+                    fashion. It reads the contents of the .csv file and
+                    adds it to the database.
+
+Please note that:
+a. Each file has its own 'main' file. It was intended for unit
+   tests, and must be removed while integrating with other modules.
+
+b. Read the comments in each of the file to get the functioning, the
+   arguments to be passed, and the return value of the function.
+
+c. For accessing the MySQL database, root permissions are required. Also,
+   the username and the password of the authorised user is needed to login
+   to the database.

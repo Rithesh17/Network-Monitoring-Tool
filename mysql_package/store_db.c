@@ -45,9 +45,20 @@ permissions\n\nEnter the username: ");
 
   dbConn = initDB(db_username, db_passwd);
 
-//  update_pcap_table(pcap_file, dbConn, 1);
-  update_tcp_packet(tcp_csv_file, dbConn, 1);
-//  update_icmp_packet(icmp_csv_file, dbConn, 1);
+  if(update_pcap_table(pcap_file, dbConn, 1))
+    printf("PCAP table updated successfully\n");
+  else
+    printf("PCAP table update failed\n");
+
+  if(update_tcp_packet(tcp_csv_file, dbConn, -1))
+    printf("TCP packet table updated successfully\n");
+  else
+    printf("TCP packet table update failed\n");
+
+  if(update_icmp_packet(icmp_csv_file, dbConn, 1))
+    printf("ICMP packet table updated successfully\n");
+  else
+    printf("ICMP packet table update failed\n");
 }
 
 int main()

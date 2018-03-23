@@ -47,6 +47,7 @@ void mysqlError(MYSQL* conn)
 MYSQL* initDB(char* user, char* passwd)
 {
   MYSQL newConn;
+  MYSQL* conn;
 
   //Initialising the handler
   if(mysql_init(&newConn) == NULL)
@@ -101,7 +102,9 @@ MYSQL* initDB(char* user, char* passwd)
     return NULL;
   }
 
-  return &newConn;
+  conn = &newConn;
+
+  return conn;
 }
 
 //The main file is only for unit test. While integrating, this

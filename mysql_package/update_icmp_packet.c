@@ -17,17 +17,19 @@
 //
 // Return Value: If successful, returns 1. Else, returns 0;
 
-int send_icmp_query(char* query, MYSQL* dbConn, int SerNo, char* type,\
-               int seq, char* ip_gateway)
+int send_icmp_query(char* query, MYSQL* dbConn, int SerNo, char* buff)
 {
-  if(sprintf(query, "INSERT INTO icmp_packet(SerNo, type, seq, ip_gateway)\
-                      VALUES (%d, \"%s\", %d, \"%s\");", \
-                      SerNo, type, seq, ip_gateway)==0)
+  char* type = strtok(buff, ",");
+  int seq = atoi(strtok(NULL, ","));
+  char* ip_gateway = strtok(NULL, "\n");
+
+  if(sprintf(query, "INSERT INTO icmp_packet(SerNo, type, seq, ip_gateway) \
+VALUES (%d, '%s', %d, '%s');", SerNo, type, seq, ip_gateway)==0)
     return error_sql(dbConn);
 
-  int len = strlen(query);
+    printf("%s\n", query);
 
-  if(mysql_real_query(dbConn, query, len)!=0)
+  if(mysql_query(dbConn, (const char*)query)!=0)
     return error_sql(dbConn);
 
   strcpy(query, "\0");
@@ -53,11 +55,10 @@ int update_icmp_packet(char* csv_file, MYSQL* dbConn, int tup_no)
     char buff[1024], query[1024];
 
     if(tup_no==-1)
-      tup_no = getTupleNum(dbConn);
+      tup_no = getTupleNum(dbConn, "icmp_packet");
 
     while(fgets(buff, 1024, (FILE*)csv_file_des) != NULL)
-        if(send_icmp_query(query, dbConn, tup_no, strtok(buff,","), \
-          atoi(strtok(buff,",")), strtok(buff,","))==0)
+        if(send_icmp_query(query, dbConn, tup_no++, buff)==0)
             return 0;
 
     return tup_no;

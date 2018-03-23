@@ -29,27 +29,28 @@ int update_pcap_table(char* filename, MYSQL* dbConn, int tup_no)
     return 0;
   }
 
-  //Using the contents of the database packet_analyser
-  mysql_query(dbConn, "USE packet_analyser;");
+  char query[1024];
+  //
+  // if(tup_no == -1)
+  //   tup_no = getTupleNum(dbConn, "p_cap");
 
-  char query[100];
-
-  int s = sprintf(query, "INSERT INTO p_cap(SerNo, timestamp, file_path,\
-                          i_node) VALUES (%d, %d, \"%s\", %d);", tup_no,\
+  int s = sprintf(query, "INSERT INTO p_cap(SerNo, timestamp, file_path, \
+i_node) VALUES (%d, %ld, '%s', %d);", tup_no,\
                           fileStat.st_mtim.tv_sec, filename, \
                           (int)fileStat.st_ino);
 
   int len = strlen(query);
 
-  if(mysql_real_query(dbConn, query, len)!=0)
+  printf("%s\n", query);
+
+  if(mysql_query(dbConn, (const char*)query)!=0)
   {
     printf("Error: %s\n", mysql_error(dbConn));
     mysql_close(dbConn);
     return 0;
   }
-
-  tup_no++;
-  return tup_no;
+  printf("Return 1.\n");
+  return 1;
 }
 
 //The main file is only for unit test. While integrating, this

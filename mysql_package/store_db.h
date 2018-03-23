@@ -14,6 +14,6 @@ int update_tcp_packet(char* csv_file, MYSQL* dbConn, int tup_no);
 
 int error_sql(MYSQL* dbConn);
 
-int getTupleNum(MYSQL* dbConn);
+int getTupleNum(MYSQL* dbConn, char* table_name);
 
 #endif

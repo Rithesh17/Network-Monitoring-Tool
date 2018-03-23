@@ -3,9 +3,11 @@
 #include<my_global.h>
 #include<mysql.h>
 
+#include "store_db.h"
+
 //
 //This is the error function for errors found in
-//the update_tcp_packet() and send_query()
+//the update_tcp_packet() and send_tcp_query()
 //functions.
 //
 //Parameters: dbConn: The connection handler to MySQL
@@ -21,7 +23,7 @@ int error_sql(MYSQL* dbConn)
 
 int getTupleNum(MYSQL* dbConn)
 {
-  char* query[100];
+  char query[100];
   sprintf(query, "SELECT * FROM tcp_packet;");
 
   int len = strlen(query);
@@ -34,26 +36,26 @@ int getTupleNum(MYSQL* dbConn)
     return 0;
   }
 
-  //The result of the query is captured
-  MYSQL_RES* result = mysql_store_result(dbConn);
+  // //The result of the query is captured
+  // MYSQL_RES* result = mysql_store_result(dbConn);
+  //
+  // if(result==NULL)
+  // {
+  //   printf("Error: %s\n", mysql_error(dbConn));
+  //   mysql_close(dbConn);
+  //   return 0;
+  // }
+  //
+   int num_rows = 0;
+  //
+  // //We are finding the number of rows in the 'result'
+  // //table.
+  // while(mysql_fetch_row(result))
+  // {
+  //   num_rows++;// break;
+  // }
 
-  if(result==NULL)
-  {
-    printf("Error: %s\n", mysql_error(dbConn));
-    mysql_close(dbConn);
-    return 0;
-  }
-
-  int num_rows = 0;
-
-  //We are finding the number of rows in the 'result'
-  //table.
-  while(mysql_fetch_row(result))
-  {
-    num_rows++;// break;
-  }
-
-  return num_rows++;
+  return ++num_rows;
 }
 
 // Function to send the query to MySQL, to create instances of the
@@ -72,11 +74,20 @@ int getTupleNum(MYSQL* dbConn)
 //
 // Return Value: If successful, returns 1. Else, returns 0;
 
-int send_query(char* query, MYSQL* dbConn, int SerNo, char* timestamp,\
-               int length, char* ether_src, char* ether_dst, \
-               char* protocol3, char* ip_src, char* ip_dst, char* protocol4, \
-               int port_src, int port_dst)
+int send_tcp_query(char* query, MYSQL* dbConn, int SerNo, char* buff)
 {
+
+  char* timestamp = strtok(buff, ",");
+  int length = atoi(strtok(NULL, ","));
+  char* ether_src = strtok(NULL, ",");
+  char* ether_dst = strtok(NULL, ",");
+  char* protocol3 = strtok(NULL, ",");
+  char* ip_src = strtok(NULL, ",");
+  char* ip_dst = strtok(NULL, ",");
+  char* protocol4 = strtok(NULL, ",");
+  int port_src = atoi(strtok(NULL, ","));
+  int port_dst = atoi(strtok(NULL, ","));
+
   if(sprintf(query, "INSERT INTO tcp_packet(SerNo, timestamp, length, \
                       ether_src, ether_dst, protocol3, ip_src, ip_dst, protocol4,\
                       port_src, port_dst) VALUES (%d, \"%s\", %d, \"%s\", \"%s\"\
@@ -86,14 +97,12 @@ int send_query(char* query, MYSQL* dbConn, int SerNo, char* timestamp,\
                       port_dst)==0)
     return error_sql(dbConn);
 
-  int len = strlen(query);
-
-  if(mysql_real_query(dbConn, query, len)!=0)
+  if(mysql_real_query(dbConn, query, strlen(query))!=0)
     return error_sql(dbConn);
 
-  sprintf(query, '\0');
+  // strcpy(query, "\0");
 
-  return 1;
+  return tup_no;
 }
 
 //Function to update the tcp_packet table of
@@ -108,7 +117,7 @@ int send_query(char* query, MYSQL* dbConn, int SerNo, char* timestamp,\
 //              the last added tuple. Else, returns 0
 //
 
-int update_tcp_packet(const char* csv_file, MYSQL* dbConn, int tup_no)
+int update_tcp_packet(char* csv_file, MYSQL* dbConn, int tup_no)
 {
     FILE* csv_file_des = fopen(csv_file, "r");
     char buff[1024], query[1024];
@@ -116,39 +125,36 @@ int update_tcp_packet(const char* csv_file, MYSQL* dbConn, int tup_no)
     if(tup_no==-1)
       tup_no = getTupleNum(dbConn);
 
-    while(fgets(buff, 1024, (FILE*)csv_file_des) != NULL)
-        if(send_query(query, dbConn, ++tup_no, strtok(buff,","), atoi(strtok(buff,",")),\
-            strtok(buff,","), strtok(buff,","),  strtok(buff,","), \
-            strtok(buff,","), strtok(buff,","), strtok(buff,","), \
-            atoi(strtok(buff,",")), atoi(strtok(buff,",")))==0)
+     while(fgets(buff, sizeof(buff), (FILE*)csv_file_des) != NULL)
+        if(send_tcp_query(query, dbConn, ++tup_no, buff)==0)
             return 0;
 
     return tup_no;
 }
-
-int main()
-{
-  MYSQL dbConn;
-
-  //Initialising the handler
-  if(mysql_init(&dbConn) == NULL)
-  {
-    printf("Error: %s\n", mysql_error(&dbConn));
-    return 0;
-  }
-
-  //Connecting to MySQL through the handler.
-  if(mysql_real_connect(&dbConn, "localhost", "root", "nirmala17", NULL, 3306, NULL, 0)==NULL)
-  {
-    printf("Error: %s\n", mysql_error(&dbConn));
-    return 0;
-  }
-
-  mysql_query(&dbConn, "USE packet_analyser;");
-
-  int tup_no = 1;
-  tup_no = update_tcp_packet("new.csv",&dbConn, -1);
-
-  mysql_close(&dbConn);
-  return 1;
-}
+//
+// int main()
+// {
+//   MYSQL dbConn;
+//
+//   //Initialising the handler
+//   if(mysql_init(&dbConn) == NULL)
+//   {
+//     printf("Error: %s\n", mysql_error(&dbConn));
+//     return 0;
+//   }
+//
+//   //Connecting to MySQL through the handler.
+//   if(mysql_real_connect(&dbConn, "localhost", "root", "nirmala17", NULL, 3306, NULL, 0)==NULL)
+//   {
+//     printf("Error: %s\n", mysql_error(&dbConn));
+//     return 0;
+//   }
+//
+//   mysql_query(&dbConn, "USE packet_analyser;");
+//
+//   int tup_no = 1;
+//   tup_no = update_tcp_packet("new.csv",&dbConn, -1);
+//
+//   mysql_close(&dbConn);
+//   return 1;
+// }

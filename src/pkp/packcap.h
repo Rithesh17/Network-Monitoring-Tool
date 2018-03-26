@@ -37,8 +37,8 @@
  * pkp_device_details: This structure contains all the details of the default device .
  */
 
- char *pkp_csv_file;
- char *pkp_dump_file;
+ char pkp_csv_file[50];
+ char pkp_dump_file[50];
 
 
 struct pkp_device_details {
@@ -49,7 +49,7 @@ struct pkp_device_details {
 	struct in_addr 	ip_address;
 	bpf_u_int32 	raw_ip_addr;
 	bpf_u_int32 	raw_subnet_mask;
-	pcap_dumper_t *dumpfile;
+
 
 } pkp_device;
 
@@ -63,6 +63,7 @@ struct pkp_sniff_session {
 	int 		packet_count_limit;
 	int 		timeout_limit;
 	pcap_t 		*handle;
+  pcap_dumper_t *dumpfile;
 } pkp_sniff;
 
 
@@ -156,7 +157,7 @@ struct icmp4_packet {
  * Error Message printing routine of packcap.
  */
 
-void pkp_err_exit(char *errmsg , char *error_buffer) ;
+void pkp_err_exit(char *errmsg) ;
 
 /*
  * This Routine prints the packet length.
@@ -175,6 +176,23 @@ void pkp_packet_handler(unsigned char *arg , struct pcap_pkthdr *packet_header ,
 
 
 //void pkp_pcap_dump_handler(unsigned char *dumpfile , const struct pcap_pkthdr *header , const unsigned char *pkt_data);
+
+
+
+ /*
+  * This routine will dump all the packets mercilessly into a file.
+  */
+void pkp_dumpinto_file();
+
+void pkp_dumpfile_handler(unsigned char *arg , struct pcap_pkthdr *packet_header , const unsigned char *packet);
+
+
+  /*
+   * This routine will dump the details into the live relay window.
+   */
+
+void pkp_live_relay();
+
 
 
 #endif

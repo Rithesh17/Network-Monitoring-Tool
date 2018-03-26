@@ -11,14 +11,8 @@
 #include"pkp/ether_handle.h"
 
 
-int main(int argc , char **argv) {
+int main() {
 
-	if(argc != 3) {
-		fprintf(stderr , "Usage: $%s <pcapdumpfile.pcap> <name_of_csvfile.csv> \n" , argv[0]);
-		exit(1);
-	}
-	pkp_csv_file = argv[2];
-	pkp_dump_file = argv[1];
 
 /*
  * Finding default device .
@@ -26,7 +20,7 @@ int main(int argc , char **argv) {
  */
 	pkp_device.name = pcap_lookupdev(pkp_device.error_buffer);
 	if(pkp_device.name == NULL)
-		pkp_err_exit("Error in finding default device. \nRoutine: pcap_loopupdev()" , pkp_device.error_buffer);
+		pkp_err_exit("Error in finding default device. \nRoutine: pcap_loopupdev()");
 
 
 /*
@@ -36,7 +30,7 @@ int main(int argc , char **argv) {
 
 
 	if(pcap_lookupnet(pkp_device.name , &pkp_device.raw_ip_addr , &pkp_device.raw_subnet_mask , pkp_device.error_buffer) == -1)
-		pkp_err_exit("Error in finding details about the device. \nRoutine: pcap_lookupnet()" , pkp_device.error_buffer);
+		pkp_err_exit("Error in finding details about the device. \nRoutine: pcap_lookupnet()");
 
 /*
  * Converting Network forms of IP Address and Subnet Mask into human-readable strings.
@@ -46,13 +40,13 @@ int main(int argc , char **argv) {
 	pkp_device.ip_address.s_addr = pkp_device.raw_ip_addr;
 	strcpy(pkp_device.str_ip_addr , inet_ntoa(pkp_device.ip_address));
 	if(pkp_device.str_ip_addr == NULL)
-		pkp_err_exit("Error: Unable to convert raw IP address into human readable form. Routine: inet_ntoa()" , pkp_device.error_buffer);
+		pkp_err_exit("Error: Unable to convert raw IP address into human readable form. Routine: inet_ntoa()");
 
 
 	pkp_device.ip_address.s_addr = pkp_device.raw_subnet_mask;
 	strcpy(pkp_device.str_subnet_mask , inet_ntoa(pkp_device.ip_address));
 	if(pkp_device.str_subnet_mask == NULL)
-		pkp_err_exit("Error: Unable to covert raw Subnet mask into human readable form. Routine: inet_ntoa()" , pkp_device.error_buffer);
+		pkp_err_exit("Error: Unable to covert raw Subnet mask into human readable form. Routine: inet_ntoa()");
 
 	printf("Device = %s\n" 	     , 	pkp_device.name);
 	printf("Ip Address = %s\n"   , 	pkp_device.str_ip_addr);
@@ -66,7 +60,8 @@ int main(int argc , char **argv) {
 
 	pkp_sniff.handle = pcap_open_live(pkp_device.name , BUFSIZ , pkp_sniff.packet_count_limit , pkp_sniff.timeout_limit , pkp_device.error_buffer);
 	if(pkp_sniff.handle == NULL)
-		pkp_err_exit("Error:  Unable to open a live sniffing session in the device specified. Routine: pcap_open_live()" , pkp_device.error_buffer);
+		pkp_err_exit("Error:  Unable to open a live sniffing session in the device specified. Routine: pcap_open_live()");
+
 
 /*
  * Checking if the default device uses/supports Ethernet headers. Or Checking if the Data-Link Protocol is the Ethernet Protocol.
@@ -74,37 +69,43 @@ int main(int argc , char **argv) {
  */
 
 	if(pcap_datalink(pkp_sniff.handle) != DLT_EN10MB)
-		pkp_err_exit("Error: Device does not support Ethernet Headers." , pkp_device.error_buffer);
-
-/*
- * XXX: Checking if sniffing happens properly. This will be commented.
- * Sniffed 1 packet .
- * Routine: pcap_next()
- *
- *
-	pkp_packet = pcap_next(pkp_sniff_handle , &pkp_packet_header);
-	if(pkp_packet == NULL)
-		err_exit("Error: A single packet did not get sniffed." , pkp_error_buffer);
-
-	print_packet_len(pkp_packet , pkp_packet_header);
-
- */
+		pkp_err_exit("Error: Device does not support Ethernet Headers.");
 
 
-	//if((pkp_device.dumpfile = pcap_dump_open(pkp_sniff.handle , pkp_dump_file)) == NULL)
-	//	pkp_err_exit("Error in dumping the packets into a dump(pcap) file" , pkp_device.error_buffer);
+	/*
+	 * Should Give options to the user.
+	 * 1. Should the packets be dumped be into a file . That pcap file can be opened later using a tool like wireshark.
+	 * 2. Give the live relay on the screen. Sub options should be given.
+	 				a. Complete dump(From which a person cannot make out much)
+					b. Dump packets of a particular protocol.
+					c. Dump packets of a particular protocol.
+					d. Dump packets which are data between host machine and a particular website(eg: youtube.com)
+			If time permits , Add more features and make it more user controllable.
+	*/
 
+	printf("Options: \nDump packets into a .pcap file -- 0 \nDump packets onto the live relay window -- 1\n");
+	unsigned short int choice;
+	if(scanf("%d" , &choice) != 1)
+		pkp_err_exit("\nError in inputting the choices. Choices: \n(0)Dump into a file \n(1)Dump onto the live relay window");
 
-//	if(pcap_dump_fopen(pkp_sniff.handle , "pcapfile.pcap") == NULL)
-	//	pkp_err_exit("Error dumping into pcap file" , pkp_device.error_buffer);
+	if(choice == 0) {
+//		pkp_dumpinto_file();
+		printf("\nChosen to dump the packets into a dumpfile.");
+		pkp_dumpinto_file();
+	}
+	else if(choice == 1) {
+		printf("\nThe live relay option is chosen!\n");
+		pkp_live_relay();
+	}
+	else
+		pkp_err_exit("Wrong option. Options: 0(Dump into a file) or 1(Dump onto the live relay window");
 
 
 /*
  * Call the sniff handler . DEFAULT_PACKET_COUNT_LIMIT = 1. So , the sniffing happens till an error occurs.
  * Routine: pcap_loop()
  */
-	//pcap_loop(pkp_sniff.handle , DEFAULT_PACKET_COUNT_LIMIT , pkp_pcap_dump_handler , (unsigned char *)(pkp_device.dumpfile));
-	pcap_loop(pkp_sniff.handle , DEFAULT_PACKET_COUNT_LIMIT , pkp_packet_handler , NULL);
+
 
 	return 0;
 

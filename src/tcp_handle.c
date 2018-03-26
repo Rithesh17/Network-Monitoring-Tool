@@ -1,7 +1,7 @@
 /*
  * File: tcp_handle.c
  *
- * Contents: This source file contains routines routines to parse the TCP(Transmission Control Protocol) header. 
+ * Contents: This source file contains routines routines to parse the TCP(Transmission Control Protocol) header.
  * TCP Protocol is a Layer 4 protocol.
  *
  * The parser routine parses and make note of important things like
@@ -9,7 +9,7 @@
  * 	2. Destination port
  * 	3. Swquence Number
  * 	4. Acknoledgement number
- * 	5. What kind of packet it is. 
+ * 	5. What kind of packet it is.
  * 		a. ACK
  * 		b. SYN
  * 		c. FIN
@@ -21,6 +21,7 @@
  */
 
 #include"pkp/tcp_handle.h"
+#include"pkp/packcap.h"
 
 void pkp_read_tcp_header(const unsigned char *packet) {
 

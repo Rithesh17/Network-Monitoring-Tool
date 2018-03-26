@@ -31,5 +31,6 @@ function [fitness,hypo] = neural_net(val, a, b, c, netw, input_data, output_data
     netw.lw{2,1} = val_2;
     
     hypo = netw(input_data);
+    
     fitness = sum((hypo-output_data).^2)/length(input_data);
 end

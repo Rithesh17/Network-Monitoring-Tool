@@ -14,9 +14,11 @@
 //is done so as not to disturb other functions of the
 //packet sniffer.
 
-#include<stdio.h>
+#include<time.h>
 #include<mysql.h>
 #include<my_global.h>
+
+#include "store_db.h"
 
 //This is the error function for any errors
 //found in the initDB() function.
@@ -45,6 +47,7 @@ void mysqlError(MYSQL* conn)
 MYSQL* initDB(char* user, char* passwd)
 {
   MYSQL newConn;
+  MYSQL* conn;
 
   //Initialising the handler
   if(mysql_init(&newConn) == NULL)
@@ -80,51 +83,44 @@ MYSQL* initDB(char* user, char* passwd)
     return NULL;
   }
 
-  //Creating the service_port table if it does not exist
-  if(mysql_query(&newConn, "CREATE TABLE IF NOT EXISTS service_port\
-                            (SerNo INT PRIMARY KEY, serv_port INT,\
-                            service TEXT, protocol TEXT);")!=0)
+  //Creating the icmp_packet table if it does not exist
+  if(mysql_query(&newConn, "CREATE TABLE IF NOT EXISTS icmp_packet\
+                            (SerNo INT PRIMARY KEY, type TEXT, seq INT, ip_gateway TEXT);")!=0)
   {
     mysqlError(&newConn);
     return NULL;
   }
 
-  //Creating the ip_url table if it does not exist
-  if(mysql_query(&newConn, "CREATE TABLE IF NOT EXISTS ip_url\
-                            (SerNo INT PRIMARY KEY, ip_addr TEXT,\
-                            url_addr TEXT);")!=0)
+  //Creating the tcp_packet table if it does not exist
+  if(mysql_query(&newConn, "CREATE TABLE IF NOT EXISTS tcp_packet\
+                           (SerNo INT PRIMARY KEY, timestamp TEXT,\
+                           length INT, ether_src TEXT, ether_dst TEXT,\
+                           protocol3 TEXT, ip_src TEXT, ip_dst TEXT,\
+                           protocol4 TEXT, port_src INT, port_dst INT);")!=0)
   {
     mysqlError(&newConn);
     return NULL;
   }
 
-  //Creating the ip_ether table if it does not exist
-  if(mysql_query(&newConn, "CREATE TABLE IF NOT EXISTS ip_ether\
-                            (SerNo INT PRIMARY KEY, ip_addr TEXT,\
-                            ether_addr TEXT);")!=0)
-  {
-    mysqlError(&newConn);
-    return NULL;
-  }
+  conn = &newConn;
 
-  //Creating the pkt_info table if it does not exist
-  if(mysql_query(&newConn, "CREATE TABLE IF NOT EXISTS pkt_info\
-                            (SerNo INT PRIMARY KEY, ip_src TEXT,\
-                            ip_dst TEXT, protocol TEXT, length INT\
-                            timestamp TEXT);")!=0)
-  {
-    mysqlError(&newConn);
-    return NULL;
-  }
-
-  return &newConn;
+  return conn;
 }
 
 //The main file is only for unit test. While integrating, this
 //part will be commented.
-int main()
-{
-  //Please enter the username and password in initDB
-  initDB(user, passwd);
-  return 0;
-}
+// int main(int argc, char* argv[])
+// {
+//   //Please enter the username and password in initDB
+//   clock_t begin = clock();
+//   if(argc < 3)
+//   {
+//     printf("Usage: $ <exec.out> <username> <passwd>\n");
+//     return 0;
+//   }
+//
+//   initDB(argv[1], argv[2]);
+//
+//   clock_t end = clock();
+//   printf("Time spent = %lf\n", (end-begin)*1.0/CLOCKS_PER_SEC);
+// }

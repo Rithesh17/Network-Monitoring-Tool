@@ -6,7 +6,7 @@ function ANN_PSO
 
     %Enter the file name and the Sheet nuber of .xls file
     %containing the dataset
-    file_n = 'new.xlsx';
+    file_n = 'train.xlsx';
     sheet1 = 'Sheet1';
     sheet2 = 'Sheet2';
 
@@ -62,7 +62,7 @@ function ANN_PSO
         fprintf('Iteration\tBest Particle\tFitness\n');
         
         itern = 1;
-        while itern <= 100
+        while itern <= 700
             
             for i = 1:popn_size
                for j = 1:param_size
@@ -106,7 +106,7 @@ function ANN_PSO
         x_best(trials,:) = g_best;
         y_best(trials) = glob_min_fit;
     end
-    fprintf('For the PSO:');
+    fprintf('For the PSO: ');
     toc;
     fprintf('\n');
     
@@ -116,8 +116,27 @@ function ANN_PSO
     [~, index_of_best] = mini(y_best);
     x_best_of_best = x_best(index_of_best,:);
     
-    [~,hypo1] = neural_net(x_best_of_best, a, b, c, final_netw, input_data, output_data);
+    neural_net(x_best_of_best, a, b, c, final_netw, input_data, output_data);
     
-    plotregression(output_data, hypo1);
+    fprintf('Testing the ANN...\n');
     
+    input_data = xlsread('test.xlsx', 'Sheet1');
+    output_data = xlsread('test.xlsx', 'Sheet2');
+    
+    %view(final_netw);
+    
+    count=0;
+    
+    for i=1:length(output_data(:,1))
+        hypo = final_netw(input_data(1,:));
+        %disp(hypo);
+        %disp(floor(hypo));
+        if(floor(hypo) ~= output_data(i,1))
+            count=count+1;
+        end
+    end
+    
+    error = count/length(output_data(:,1));
+    
+    fprintf('Error bits: %d\nSuccess rate: %f\n',count, 1-error);
 end

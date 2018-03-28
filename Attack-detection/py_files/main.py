@@ -1,4 +1,4 @@
-
+#This is the main file for the PSO-DE optimiser.
 
 if __name__ == '__main__':
 

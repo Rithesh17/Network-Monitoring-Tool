@@ -4,13 +4,12 @@
 //
 //Tables added to the database:
 //      p_cap(file_path, inode, timestamp)
-//      service_port(port_number, service, protocol)
-//      ip_url(ip_address, url_address)
-//      ip_ether(ip_address, ether_address)
-//      pkt_info(sourceIP, destIP, protocol, length, timestamp)
+//      packet(SerNo, timestamp, length, ether_src, ether_dst,
+//             protocol3, ip_src, ip_dst, protocol4, port_src,
+//             port_dst)
 //
 //When an error is found, it is displayed on a window and
-//NULL is returned, instead of exiting at that point. This
+//NULL is returned, instead of terminating at that point. This
 //is done so as not to disturb other functions of the
 //packet sniffer.
 
@@ -83,16 +82,8 @@ MYSQL* initDB(char* user, char* passwd)
     return NULL;
   }
 
-  //Creating the icmp_packet table if it does not exist
-  if(mysql_query(&newConn, "CREATE TABLE IF NOT EXISTS icmp_packet\
-                            (SerNo INT PRIMARY KEY, type TEXT, seq INT, ip_gateway TEXT);")!=0)
-  {
-    mysqlError(&newConn);
-    return NULL;
-  }
-
-  //Creating the tcp_packet table if it does not exist
-  if(mysql_query(&newConn, "CREATE TABLE IF NOT EXISTS tcp_packet\
+  //Creating the packet table if it does not exist
+  if(mysql_query(&newConn, "CREATE TABLE IF NOT EXISTS packet\
                            (SerNo INT PRIMARY KEY, timestamp TEXT,\
                            length INT, ether_src TEXT, ether_dst TEXT,\
                            protocol3 TEXT, ip_src TEXT, ip_dst TEXT,\
@@ -106,21 +97,3 @@ MYSQL* initDB(char* user, char* passwd)
 
   return conn;
 }
-
-//The main file is only for unit test. While integrating, this
-//part will be commented.
-// int main(int argc, char* argv[])
-// {
-//   //Please enter the username and password in initDB
-//   clock_t begin = clock();
-//   if(argc < 3)
-//   {
-//     printf("Usage: $ <exec.out> <username> <passwd>\n");
-//     return 0;
-//   }
-//
-//   initDB(argv[1], argv[2]);
-//
-//   clock_t end = clock();
-//   printf("Time spent = %lf\n", (end-begin)*1.0/CLOCKS_PER_SEC);
-// }

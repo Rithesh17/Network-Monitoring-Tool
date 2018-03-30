@@ -1,19 +1,16 @@
+// The header file connecting the initDB function, the store_db function
+// and the update_all_tables function. All the three functions are in
+// different files, and hence this header file connects them.
+
 #ifndef __STORE_DB_H__
 #define __STORE_DB_H__
 
 #include <my_global.h>
 #include <mysql.h>
+#include <sys/stat.h>
 
-MYSQL* initDB(char* user, char* passwd);
+extern MYSQL* initDB(char* user, char* passwd);
 
-int update_icmp_packet(char* csv_file, MYSQL* dbConn, int tup_no);
-
-int update_pcap_table(char* filename, MYSQL* dbConn, int tup_no);
-
-int update_tcp_packet(char* csv_file, MYSQL* dbConn, int tup_no);
-
-int error_sql(MYSQL* dbConn);
-
-int getTupleNum(MYSQL* dbConn, char* table_name);
+extern int update_all_tables(char* pcap_filename, char* csv_file, MYSQL* dbConn);
 
 #endif

@@ -28,10 +28,10 @@ int set_disp_mode(int fd,int option)
    return 0;
 }
 
-int store_db(char* pcap_file, char* tcp_csv_file, char* icmp_csv_file)
+int store_db(char* pcap_file, char* csv_file)
 {
   char db_username[30], db_passwd[30];
-  printf("To store the packet information in the database, we need access \
+  printf("\nTo store the packet information in the database, we need access \
 permissions\n\nEnter the username: ");
   scanf("%s", db_username);
 
@@ -43,25 +43,16 @@ permissions\n\nEnter the username: ");
 
   MYSQL* dbConn;
 
+  printf("The .pcap files will be updated in the p_cap table, and the \
+packet information will be in the packet table\n\n");
+
   dbConn = initDB(db_username, db_passwd);
 
-  if(update_pcap_table(pcap_file, dbConn, 1))
-    printf("PCAP table updated successfully\n");
-  else
-    printf("PCAP table update failed\n");
-
-  if(update_tcp_packet(tcp_csv_file, dbConn, -1))
-    printf("TCP packet table updated successfully\n");
-  else
-    printf("TCP packet table update failed\n");
-
-  if(update_icmp_packet(icmp_csv_file, dbConn, 1))
-    printf("ICMP packet table updated successfully\n");
-  else
-    printf("ICMP packet table update failed\n");
+  if(update_all_tables(pcap_file, csv_file, dbConn)==0)
+    printf("Packet table update failed\n");
 }
 
 int main()
 {
-  store_db("test1.txt", "tcp.csv", "icmp.csv");
+  store_db("packcap.pcap", "packcap.csv");
 }

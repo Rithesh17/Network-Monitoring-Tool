@@ -53,6 +53,8 @@ int main() {
 	printf("Subnet mask = %s\n\n"  , 	pkp_device.str_subnet_mask);
 
 
+
+
 /*
  * Opening a live sniffing session. Get a handle to manage the session.
  * Routine: pcap_open_live()
@@ -71,6 +73,21 @@ int main() {
 	if(pcap_datalink(pkp_sniff.handle) != DLT_EN10MB)
 		pkp_err_exit("Error: Device does not support Ethernet Headers.");
 
+		/*
+		 * In the next part , Ask for what type of traffic to be captured.
+		 */
+
+			int filter_choice_0;
+			int filter_choice_1;
+
+		 	printf("\nChoose the type of traffic filter: \n");
+		 	pkp_print_list_filters();
+			printf("\n\nEnter option: ");
+		 	scanf("%d" , &filter_choice_0);
+
+			pkp_choose_filter(filter_choice_0);
+			pkp_apply_filter();
+
 
 	/*
 	 * Should Give options to the user.
@@ -83,13 +100,12 @@ int main() {
 			If time permits , Add more features and make it more user controllable.
 	*/
 
-	printf("Options: \nDump packets into a .pcap file -- 0 \nDump packets onto the live relay window -- 1\n");
+	printf("\n\nOptions: \nDump packets into a .pcap file -- 0 \nDump packets onto the live relay window -- 1\n");
 	unsigned short int choice;
 	if(scanf("%d" , &choice) != 1)
 		pkp_err_exit("\nError in inputting the choices. Choices: \n(0)Dump into a file \n(1)Dump onto the live relay window");
 
 	if(choice == 0) {
-//		pkp_dumpinto_file();
 		printf("\nChosen to dump the packets into a dumpfile.");
 		pkp_dumpinto_file();
 	}
@@ -100,13 +116,6 @@ int main() {
 	else
 		pkp_err_exit("Wrong option. Options: 0(Dump into a file) or 1(Dump onto the live relay window");
 
-
-/*
- * Call the sniff handler . DEFAULT_PACKET_COUNT_LIMIT = 1. So , the sniffing happens till an error occurs.
- * Routine: pcap_loop()
- */
-
-
+		signal(SIGINT, pkp_signal_handler());
 	return 0;
-
 }

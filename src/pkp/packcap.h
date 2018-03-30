@@ -10,8 +10,11 @@
 #include<sys/types.h>
 #include<netinet/in.h>
 #include<arpa/inet.h>
+#include<netdb.h>
+#include<signal.h>
 #include<time.h>
 #include<pcap.h>
+
 
 #include"ether_handle.h"
 #include"ipvx_handle.h"
@@ -64,6 +67,9 @@ struct pkp_sniff_session {
 	int 		timeout_limit;
 	pcap_t 		*handle;
   pcap_dumper_t *dumpfile;
+  struct bpf_program filter;
+  char filter_exp[50] ;
+  struct pcap_stat stat;
 } pkp_sniff;
 
 
@@ -192,6 +198,10 @@ void pkp_dumpfile_handler(unsigned char *arg , struct pcap_pkthdr *packet_header
    */
 
 void pkp_live_relay();
+
+void pkp_choose_filter(int fc);
+void pkp_apply_filter();
+void pkp_print_list_filters();
 
 
 

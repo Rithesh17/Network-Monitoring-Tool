@@ -182,7 +182,7 @@ void pkp_choose_filter(int fc) {
 		printf("NOTE: TODO: A URL lead to several servers which is denoted by the multiple IP Addresses returned by the DNS lookup.So , A mechanism should be built which detects the IP Address.\nTill then , Guess the IP Address.\n");
 		printf("Choose the IP Address(Enter the serial no.): ");
 		scanf("%d" , &i);
-		snprintf(pkp_sniff.filter_exp , sizeof(pkp_sniff.filter_exp) , "ether proto %s" , host->h_addr_list[i]);
+		snprintf(pkp_sniff.filter_exp , sizeof(pkp_sniff.filter_exp) , "host %s" , inet_ntoa(*(struct in_addr*)(host->h_addr_list[i])));
 
 	}
 	else if(fc == 11) {

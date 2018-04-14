@@ -163,7 +163,7 @@ class DifferentialEvolution:
         self.op = op;
 
         self.upp_val = np.zeros(shape=len(n_net[0].getPosition())).tolist();
-        self.low_val = self.upp_val.copy();
+        self.low_val = self.upp_val[:];
 
         for i in range(0, len(n_net[0].getPosition())):
             self.upp_val[i] = float('-inf');
@@ -301,10 +301,4 @@ if __name__ == '__main__':
             predict_out.append(0);
 
     print (sklearn.metrics.classification_report(test_out, predict_out));
-
-
-# In[4]:
-
-
-get_ipython().system('ls')
-
+    
